@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react"
 import styled from "styled-components"
 
+import { InputSelectorState } from "hifisparks-lib/types/controls"
+
 import socketIoClient from "socket.io-client"
 
 import { Event } from "hifisparks-lib/config/events"
@@ -20,12 +22,15 @@ const ButtonsContainer = styled.div`
 
 export const App = () => {
 
-	const [inputStates, setInputStates] = useState(null)
+	const [inputSelectorState, setInputSelectorState]: [
+		InputSelectorState | void,
+		(newState: InputSelectorState | void) => void
+	] = useState(null)
 	const socket = useRef(null)
 
 	const dispatchSetActiveInput = withHapticFeedback(
 		[20, 20, 20],
-		(name: string) => socket.current && socket.current.emit(Event.setActiveInput, { name }),
+		(id: string) => socket.current && socket.current.emit(Event.setActiveInput, { id }),
 	)
 	const dispatchVolumeUp = () => socket.current && socket.current.emit(Event.volumeUp)
 	const volumeDown = () => socket.current && socket.current.emit(Event.volumeDown)
@@ -33,33 +38,38 @@ export const App = () => {
 	const disconnectHandler = (err: any) => {
 		// tslint:disable-next-line:no-console
 		err && console.error(err)
-		setInputStates(null)
+		setInputSelectorState(null)
 	}
 
 	useEffect(() => {
 		socket.current = socketIoClient("http://localhost:9999", {
 			transports: ["websocket"],
 		})
-		socket.current.on(Event.inputsChanged , ({ inputStates: newInputStates }: any) => setInputStates(newInputStates))
+		socket.current.on(
+			Event.inputsChanged ,
+			({ state }: { state: InputSelectorState }) => setInputSelectorState(state))
 		socket.current.on("connect_error", disconnectHandler)
 		socket.current.on("error", disconnectHandler)
 		socket.current.on("disconnect", disconnectHandler)
 		// TODO: destroy socket when cleaning up
 	}, [])
 
-	return inputStates
+	return inputSelectorState
 		? <div>
 			<ButtonsContainer>
 			{
-				inputStates.map(({name, isSelected}: any) => (
-					<SimpleButton
-						key={name}
-						onClick={() => !isSelected && dispatchSetActiveInput(name)}
-						active={isSelected}
-					>
-						{name}
-					</SimpleButton>
-				))
+				inputSelectorState.inputs.map(({id, label}: any) => {
+					const isSelected = inputSelectorState.active === id
+					return (
+						<SimpleButton
+							key={id}
+							onClick={() => !isSelected && dispatchSetActiveInput(id)}
+							active={isSelected}
+						>
+							{label}
+						</SimpleButton>
+					)
+				})
 			}
 			</ButtonsContainer>
 			<ButtonsContainer>
