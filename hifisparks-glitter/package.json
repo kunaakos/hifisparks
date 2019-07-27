@@ -1,0 +1,26 @@
+{
+    "name": "glitter",
+    "version": "0.0.0",
+    "description": "the happy, client-facing side of hifisparks",
+    "author": "Akos Kun",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "dev": "npx parcel public/index.html"
+    },
+    "devDependencies": {
+        "parcel-bundler": "^1.12.3",
+        "typescript": "^3.5.3"
+    },
+    "dependencies": {
+        "@types/react": "^16.8.23",
+        "@types/react-dom": "^16.8.4",
+        "@types/socket.io-client": "^1.4.32",
+        "@types/styled-components": "^4.1.18",
+        "hifisparks-lib": "0.0.0",
+        "react": "^16.8.6",
+        "react-dom": "^16.8.6",
+        "socket.io-client": "^2.2.0",
+        "styled-components": "^4.3.2"
+    }
+}

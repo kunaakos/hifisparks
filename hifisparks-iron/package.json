@@ -1,0 +1,22 @@
+{
+  "name": "iron",
+  "version": "0.0.0",
+  "description": "the hifiparks service that deals with amp hardware",
+  "author": "Akos Kun",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpileOnly ./src/main.ts"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^1.0.0-pre.40"
+  },
+  "dependencies": {
+    "@types/johnny-five": "^0.0.41",
+    "@types/node": "^12.6.8",
+    "@types/socket.io": "^2.1.2",
+    "hifisparks-lib": "0.0.0",
+    "johnny-five": "^1.2.0",
+    "socket.io": "^2.2.0"
+  }
+}

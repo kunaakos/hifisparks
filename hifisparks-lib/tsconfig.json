@@ -1,0 +1,25 @@
+{
+	"include": [
+		"./components/*",
+		"./config/*",
+		"./types/*",
+		"./utils/*",
+	],
+	"exclude": [
+		"node_modules",
+	],
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"jsx": "react",
+		"lib": [
+			"dom",
+			"es2015",
+			"es2016",
+			"es2017"
+		],
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"sourceMap": true,
+		"target": "es5"
+	}
+}

@@ -1,0 +1,16 @@
+{
+  "name": "hifisparks",
+  "version": "0.0.0",
+  "description": "app suite that smartens and/or blows up vintage hifi equipment",
+  "author": "Akos Kun",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "hifisparks-lib",
+    "hifisparks-iron",
+    "hifisparks-glitter"
+  ],
+  "dependencies": {
+    "tslint": "^5.18.0"
+  }
+}
