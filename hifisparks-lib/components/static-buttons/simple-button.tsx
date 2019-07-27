@@ -5,6 +5,7 @@ import { SimpleButtonProps } from "./"
 
 export const SimpleButton = styled.div<SimpleButtonProps>`
 	user-select: none;
+	cursor: pointer;
 	background-color: ${({active}) => active ? "green" : "#777"};
 	margin: 5px;
 	padding: 10px;
