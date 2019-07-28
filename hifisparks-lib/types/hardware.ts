@@ -65,3 +65,18 @@ export type IButton = StrictEventEmitter<
 		pressed: void,
 	}
 >
+
+export type RotaryEncoderConfig = {
+	pins: {
+		a: DigitalInputPinConfig,
+		b: DigitalInputPinConfig,
+	},
+}
+
+export type IRotaryEncoder = StrictEventEmitter<
+	EventEmitter,
+	{
+		clockwiseClick: () => void,
+		counterclockwiseClick: () => void,
+	}
+>

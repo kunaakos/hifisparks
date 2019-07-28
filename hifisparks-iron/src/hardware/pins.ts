@@ -40,7 +40,7 @@ export const createPwmPin = ({ pinNr }: OutputPinConfig): IPwmPin => {
 export const createDigitalInputPin = ({
 	pinNr,
 	internalResistor,
-	debounceMs = 100,
+	debounceMs,
 }: DigitalInputPinConfig): IDigitalInputPin => {
 
 	const resistorOptions: { isPullup?: boolean, isPulldown?: boolean } =
@@ -59,16 +59,25 @@ export const createDigitalInputPin = ({
 
 	const emitter: IDigitalInputPin = new EventEmitter()
 
-	button.on("press", debounce(() => {
-		emitter.emit("rise")
-		emitter.emit("change", true)
-	},
-	debounceMs))
+	const maybeDebounce = debounceMs
+		? debounce
+		: (cb: any) => cb
 
-	button.on("release", debounce(() => {
-		emitter.emit("fall")
-		emitter.emit("change", false)
-	}, debounceMs))
+	button.on(
+		"press",
+		maybeDebounce(() => {
+			emitter.emit("rise")
+			emitter.emit("change", true)
+		}),
+	)
+
+	button.on(
+		"release",
+		maybeDebounce(() => {
+			emitter.emit("fall")
+			emitter.emit("change", false)
+		}),
+	)
 
 	return emitter
 }

@@ -12,6 +12,8 @@ import {
 
 import { createInputSelector } from "./controls/input-selector"
 import { createMotorizedPotentiometer } from "./controls/motorized-potentiometer"
+import { createButton } from "./hardware/button"
+import { createRotaryEncoder } from "./hardware/rotary-encoder"
 
 const connectionHandler = ({
 	io,
@@ -103,6 +105,23 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 			},
 		},
 	})
+
+	// tslint:disable-next-line:no-console
+	console.log("initializing rotary dial")
+	const rotaryDial = createRotaryEncoder({
+		pins: {
+			a: { pinNr: 14, internalResistor: "pullUp" },
+			b: { pinNr: 15, internalResistor: "pullUp" },
+		},
+	})
+	const rotaryDialButton = createButton({pinNr: 16, internalResistor: "pullUp", debounceMs: 100 })
+
+	// tslint:disable-next-line:no-console
+	rotaryDial.on("clockwiseClick", () => { console.log("rotary dial clockwise click")})
+	// tslint:disable-next-line:no-console
+	rotaryDial.on("counterclockwiseClick", () => { console.log("rotary dial counterclockwise click")})
+	// tslint:disable-next-line:no-console
+	rotaryDialButton.on("pressed", () => { console.log("rotary dial pressed")})
 
 	// tslint:disable-next-line:no-console
 	console.log("initializing socket.io connection handler")
