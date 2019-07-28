@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpileOnly ./src/main.ts"
+    "dev": "ts-node-dev --inspect --respawn ./src/main.ts"
   },
   "devDependencies": {
     "ts-node-dev": "^1.0.0-pre.40"
