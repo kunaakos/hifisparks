@@ -1,0 +1,22 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "launch: hifisparks-glitter in Chrome",
+			"url": "http://localhost:1234",
+			"webRoot": "${workspaceFolder}/hifisparks-glitter/dist",
+			"cwd": "${workspaceRoot}/hifisparks-glitter/src"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "attach: hifisparks-iron running in dev mode",
+			"protocol": "inspector",
+			"port": 9229,
+			"restart": true,
+			"cwd": "${workspaceRoot}/hifisparks-iron/src"
+		}
+	]
+}
