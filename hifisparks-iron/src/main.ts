@@ -78,10 +78,10 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 		id: "IS_MAIN",
 		label: "input selector",
 		inputs: [
-			{ id: "IS_MAIN__INP0", label: "TV", pinNr: 2 },
-			{ id: "IS_MAIN__INP1", label: "Bluetooth", pinNr: 3 },
-			{ id: "IS_MAIN__INP2", label: "Stream", pinNr: 4 },
-			{ id: "IS_MAIN__INP3", label: "AUX", pinNr: 5 },
+			{ id: "IS_MAIN__INP0", label: "TV", pinNr: 3 },
+			{ id: "IS_MAIN__INP1", label: "Bluetooth", pinNr: 4 },
+			{ id: "IS_MAIN__INP2", label: "Stream", pinNr: 5 },
+			{ id: "IS_MAIN__INP3", label: "AUX", pinNr: 6 },
 		],
 		active: "IS_MAIN__INP0",
 	})
@@ -97,8 +97,8 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 			type: "TB6612FNG",
 			pins: {
 				standby: 8,
-				dir: 10,
-				cdir: 9,
+				dir: 9,
+				cdir: 10,
 				pwm: 11,
 			},
 		},
