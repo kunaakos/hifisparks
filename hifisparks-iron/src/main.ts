@@ -35,12 +35,10 @@ const connectionHandler = ({
 	}
 
 	broadcastInputStates(inputSelector.getState())
+	inputSelector.events.on("stateChange", broadcastInputStates)
 
 	socket.on(Event.setActiveInput, ({ id }: any) => {
-		// tslint:disable-next-line:no-console
-		console.log(`setting active input to ${id}`)
-		inputSelector.setActive(id)
-		broadcastInputStates(inputSelector.getState())
+		inputSelector.set(id)
 	})
 
 	socket.on(Event.volumeUp, () => {
@@ -117,9 +115,9 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 	const rotaryDialButton = createButton({pinNr: 16, internalResistor: "pullUp", debounceMs: 100 })
 
 	// tslint:disable-next-line:no-console
-	rotaryDial.on("clockwiseClick", () => { console.log("rotary dial clockwise click")})
+	rotaryDial.on("clockwiseClick", inputSelector.next)
 	// tslint:disable-next-line:no-console
-	rotaryDial.on("counterclockwiseClick", () => { console.log("rotary dial counterclockwise click")})
+	rotaryDial.on("counterclockwiseClick", inputSelector.prev)
 	// tslint:disable-next-line:no-console
 	rotaryDialButton.on("pressed", () => { console.log("rotary dial pressed")})
 

@@ -1,3 +1,6 @@
+import EventEmitter from "events"
+import StrictEventEmitter from "strict-event-emitter-types"
+
 import { MotorDriverConfig } from "./hardware"
 
 /**
@@ -23,7 +26,15 @@ export interface IInputSelector {
 	id: string,
 	label: string,
 	getState: () => InputSelectorState,
-	setActive: (id: string) => void,
+	set: (id: string) => void,
+	prev: () => void,
+	next: () => void,
+	events: StrictEventEmitter<
+		EventEmitter,
+		{
+			stateChange: (newState: InputSelectorState) => void,
+		}
+	>
 }
 
 /**
