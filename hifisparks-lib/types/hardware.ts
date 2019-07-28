@@ -1,3 +1,6 @@
+import EventEmitter from "events"
+import StrictEventEmitter from "strict-event-emitter-types"
+
 export interface IDigitalOutputPin {
 	on: () => void,
 	off: () => void,
@@ -30,3 +33,20 @@ export interface IMotor {
 	stop: () => void,
 	isOn: () => boolean,
 }
+
+export type ButtonConfig = {
+	pinNr: number,
+	internalResistor?: "pullUp" | "pullDown",
+	debounceMs?: number,
+}
+
+export interface IButtonEvents {
+	pressed: void
+}
+
+export type IButton = StrictEventEmitter<
+	EventEmitter,
+	{
+		pressed: void,
+	}
+>
