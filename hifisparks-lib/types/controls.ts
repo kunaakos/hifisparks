@@ -1,17 +1,6 @@
 import { MotorDriverConfig } from "./hardware"
 
 /**
- * NOTE:
- *
- * Components that need to report their state receive their initial state
- * when initializing.
- * When polled for their current state, they'll return an updated object
- * of the same type as the initial state.
- *
- * Components that don't need to report their state receive a config object.
- */
-
-/**
  * Input selector
  */
 
