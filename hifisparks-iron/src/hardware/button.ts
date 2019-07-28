@@ -1,26 +1,21 @@
 import { EventEmitter } from "events"
-import { Button } from "johnny-five"
-import debounce from "lodash/debounce"
 
-import { ButtonConfig, IButton } from "hifisparks-lib/types/hardware"
+import {
+	ButtonConfig,
+	IButton,
+} from "hifisparks-lib/types/hardware"
 
-export const createButton = ({ pinNr, internalResistor, debounceMs }: ButtonConfig): IButton => {
+import { createDigitalInputPin } from "./pins"
 
-	const resistorOptions: { isPullup?: boolean, isPulldown?: boolean } =
-		internalResistor
-			? internalResistor === "pullUp"
-				? { isPullup: true }
-				: { isPulldown: true }
-			: {}
+export const createButton = (config: ButtonConfig): IButton => {
 
-	const button = new Button({
-		pin: pinNr,
-		...resistorOptions,
-	})
-
+	const pin = createDigitalInputPin(config)
 	const emitter: IButton = new EventEmitter()
 
-	button.on("press", debounce(() => emitter.emit("pressed"), debounceMs))
+	// NOTE: this exists because it will implement functions
+	// like detecting long presses, double clicks etc.
+
+	pin.on("rise", () => emitter.emit("pressed"))
 
 	return emitter
 }

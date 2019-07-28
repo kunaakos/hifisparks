@@ -1,6 +1,10 @@
 import EventEmitter from "events"
 import StrictEventEmitter from "strict-event-emitter-types"
 
+export type OutputPinConfig = {
+	pinNr: number,
+}
+
 export interface IDigitalOutputPin {
 	on: () => void,
 	off: () => void,
@@ -10,6 +14,21 @@ export interface IPwmPin {
 	on: (value: number) => void,
 	off: () => void,
 }
+
+export type DigitalInputPinConfig = {
+	pinNr: number,
+	internalResistor?: "pullUp" | "pullDown",
+	debounceMs?: number,
+}
+
+export type IDigitalInputPin = StrictEventEmitter<
+	EventEmitter,
+	{
+		rise: void,
+		fall: void,
+		change: (state: boolean) => void,
+	}
+>
 
 export type Tb6612fngMotorDriverConfig = {
 	type: "TB6612FNG",
@@ -38,10 +57,6 @@ export type ButtonConfig = {
 	pinNr: number,
 	internalResistor?: "pullUp" | "pullDown",
 	debounceMs?: number,
-}
-
-export interface IButtonEvents {
-	pressed: void
 }
 
 export type IButton = StrictEventEmitter<
