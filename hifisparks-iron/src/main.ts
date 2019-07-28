@@ -23,39 +23,25 @@ const connectionHandler = ({
 	controls: [IInputSelector, IMotorizedPotentiometer],
 }) => (socket: socketio.Socket) => {
 
-	const [inputSelector, volumeControl] = controls
-
 	// tslint:disable-next-line:no-console
-	console.log("a user connected, instantiating connection handler")
-
-	const broadcastInputStates = (state: InputSelectorState) => {
-		// tslint:disable-next-line:no-console
-		console.log(`broadcasting input states: ${JSON.stringify(state)}`)
-		io.emit(Event.inputsChanged, { state })
-	}
-
-	broadcastInputStates(inputSelector.getState())
-	inputSelector.events.on("stateChange", broadcastInputStates)
-
-	socket.on(Event.setActiveInput, ({ id }: any) => {
-		inputSelector.set(id)
-	})
-
-	socket.on(Event.volumeUp, () => {
-		// tslint:disable-next-line:no-console
-		console.log(`turning volume up...`)
-		volumeControl.up()
-	})
-
-	socket.on(Event.volumeDown, () => {
-		// tslint:disable-next-line:no-console
-		console.log(`turning volume down...`)
-		volumeControl.down()
-	})
-
+	console.log("A user connected.")
 	// tslint:disable-next-line:no-console
 	socket.on("disconnect", () => console.log("a user disconnected."))
 
+	const [inputSelector, volumeControl] = controls
+
+	const broadcastInputStates = (state: InputSelectorState) => {
+		io.emit(Event.inputsChanged, { state })
+	}
+
+	inputSelector.events.on("stateChange", broadcastInputStates)
+	socket.on(Event.setActiveInput, ({ id }: any) => {
+		inputSelector.set(id)
+	})
+	socket.on(Event.volumeUp, volumeControl.up)
+	socket.on(Event.volumeDown, volumeControl.down)
+
+	broadcastInputStates(inputSelector.getState())
 }
 
 const initApplication = ({ httpPort }: { httpPort: number }) => () => {
@@ -70,9 +56,6 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 			),
 	)
 
-	// tslint:disable-next-line:no-console
-	console.log("initializing input selector")
-
 	const inputSelector = createInputSelector({
 		type: "InputSelector",
 		id: "IS_MAIN",
@@ -85,9 +68,6 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 		],
 		active: "IS_MAIN__INP0",
 	})
-
-	// tslint:disable-next-line:no-console
-	console.log("initializing volume control")
 
 	const volumeControl = createMotorizedPotentiometer({
 		type: "MotorizedPotentiometer",
@@ -104,25 +84,20 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 		},
 	})
 
-	// tslint:disable-next-line:no-console
-	console.log("initializing rotary dial")
 	const rotaryDial = createRotaryEncoder({
 		pins: {
 			a: { pinNr: 14, internalResistor: "pullUp" },
 			b: { pinNr: 15, internalResistor: "pullUp" },
 		},
 	})
-	const rotaryDialButton = createButton({pinNr: 16, internalResistor: "pullUp", debounceMs: 100 })
 
-	// tslint:disable-next-line:no-console
 	rotaryDial.on("clockwiseClick", inputSelector.next)
-	// tslint:disable-next-line:no-console
 	rotaryDial.on("counterclockwiseClick", inputSelector.prev)
+
+	const rotaryDialButton = createButton({pinNr: 16, internalResistor: "pullUp", debounceMs: 100 })
 	// tslint:disable-next-line:no-console
 	rotaryDialButton.on("pressed", () => { console.log("rotary dial pressed")})
 
-	// tslint:disable-next-line:no-console
-	console.log("initializing socket.io connection handler")
 	const connectionHandlerInstance = connectionHandler({
 		io,
 		controls: [

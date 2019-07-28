@@ -46,7 +46,7 @@ export const createInputSelector = (initialState: InputSelectorState): IInputSel
 		if (currentInputIndex === -1) { return } // TODO: error handling, logging
 
 		const nextInputIndex = currentInputIndex + val
-		const lastInputIndex = state.inputs.length -1
+		const lastInputIndex = state.inputs.length - 1
 
 		if (nextInputIndex < 0) {
 			set(state.inputs[lastInputIndex].id)
