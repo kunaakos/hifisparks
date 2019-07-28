@@ -1,5 +1,3 @@
-import { Event } from "hifisparks-lib/config/events"
-
 import http from "http"
 import five from "johnny-five"
 import socketio from "socket.io"
@@ -9,6 +7,8 @@ import {
 	IMotorizedPotentiometer,
 	InputSelectorState,
 } from "hifisparks-lib/types/controls"
+
+import { ServerSocket } from "hifisparks-lib/types/events"
 
 import { createInputSelector } from "./controls/input-selector"
 import { createMotorizedPotentiometer } from "./controls/motorized-potentiometer"
@@ -21,25 +21,25 @@ const connectionHandler = ({
 }: {
 	io: socketio.Server,
 	controls: [IInputSelector, IMotorizedPotentiometer],
-}) => (socket: socketio.Socket) => {
+}) => (socket: ServerSocket) => {
 
 	// tslint:disable-next-line:no-console
 	console.log("A user connected.")
+	// @ts-ignore
 	// tslint:disable-next-line:no-console
-	socket.on("disconnect", () => console.log("a user disconnected."))
+	socket.on("disconnect", () => { console.log("a user disconnected.") })
 
 	const [inputSelector, volumeControl] = controls
 
 	const broadcastInputStates = (state: InputSelectorState) => {
-		io.emit(Event.inputsChanged, { state })
+		io.emit("inputSelectorStateChanged", state)
 	}
 
 	inputSelector.events.on("stateChange", broadcastInputStates)
-	socket.on(Event.setActiveInput, ({ id }: any) => {
-		inputSelector.set(id)
-	})
-	socket.on(Event.volumeUp, volumeControl.up)
-	socket.on(Event.volumeDown, volumeControl.down)
+
+	socket.on("setInput", inputSelector.set)
+	socket.on("volumeUp", volumeControl.up)
+	socket.on("volumeDown", volumeControl.down)
 
 	broadcastInputStates(inputSelector.getState())
 }

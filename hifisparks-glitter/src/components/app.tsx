@@ -5,7 +5,7 @@ import { InputSelectorState } from "hifisparks-lib/types/controls"
 
 import socketIoClient from "socket.io-client"
 
-import { Event } from "hifisparks-lib/config/events"
+import { ClientSocket } from "hifisparks-lib/types/events"
 
 import { PushButton } from "hifisparks-lib/components/push-button"
 import { SimpleButton } from "hifisparks-lib/components/static-buttons"
@@ -26,31 +26,29 @@ export const App = () => {
 		InputSelectorState | void,
 		(newState: InputSelectorState | void) => void
 	] = useState(null)
-	const socket = useRef(null)
+
+	const socket: { current: ClientSocket | null } = useRef(null)
 
 	const dispatchSetActiveInput = withHapticFeedback(
 		[20, 20, 20],
-		(id: string) => socket.current && socket.current.emit(Event.setActiveInput, { id }),
+		(id: string) => socket.current && socket.current.emit("setInput", id),
 	)
-	const dispatchVolumeUp = () => socket.current && socket.current.emit(Event.volumeUp)
-	const volumeDown = () => socket.current && socket.current.emit(Event.volumeDown)
+	const dispatchVolumeUp = () => socket.current && socket.current.emit("volumeUp")
+	const volumeDown = () => socket.current && socket.current.emit("volumeDown")
 
-	const disconnectHandler = (err: any) => {
-		// tslint:disable-next-line:no-console
-		err && console.error(err)
-		setInputSelectorState(null)
-	}
+	const disconnectHandler = () => { setInputSelectorState(null) }
 
 	useEffect(() => {
-		socket.current = socketIoClient("http://localhost:9999", {
-			transports: ["websocket"],
-		})
-		socket.current.on(
-			Event.inputsChanged ,
-			({ state }: { state: InputSelectorState }) => setInputSelectorState(state))
+
+		// @ts-ignore
+		socket.current = socketIoClient("http://localhost:9999", { transports: ["websocket"] })
+		socket.current.on("inputSelectorStateChanged", setInputSelectorState)
+		// @ts-ignore
 		socket.current.on("connect_error", disconnectHandler)
+		// @ts-ignore
 		socket.current.on("error", disconnectHandler)
-		socket.current.on("disconnect", disconnectHandler)
+		// @ts-ignore
+		socket.current.on("disconnected", disconnectHandler)
 		// TODO: destroy socket when cleaning up
 	}, [])
 
