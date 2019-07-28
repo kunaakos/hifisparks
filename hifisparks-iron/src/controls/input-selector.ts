@@ -5,17 +5,17 @@ import {
 	InputSelectorState,
 	InputState,
 } from "hifisparks-lib/types/controls"
-import { IDigitalPin } from "hifisparks-lib/types/hardware"
+import { IDigitalOutputPin } from "hifisparks-lib/types/hardware"
 
-import { createDigitalPin } from "../hardware/pins"
+import { createDigitalOutputPin } from "../hardware/pins"
 
 type InputSelectorPins = {
-	[pinNr: number]: IDigitalPin,
+	[pinNr: number]: IDigitalOutputPin,
 }
 export const createInputSelector = (initialState: InputSelectorState): IInputSelector => {
 
 	const pins = initialState.inputs.reduce<InputSelectorPins>(( pinsAcc, { pinNr }) => {
-		pinsAcc[pinNr] = createDigitalPin({ pinNr })
+		pinsAcc[pinNr] = createDigitalOutputPin({ pinNr })
 		return pinsAcc
 	}, {})
 

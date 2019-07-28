@@ -1,4 +1,4 @@
-export interface IDigitalPin {
+export interface IDigitalOutputPin {
 	on: () => void,
 	off: () => void,
 }
