@@ -1,5 +1,3 @@
-import { Event } from "hifisparks-lib/config/events"
-
 import http from "http"
 import five from "johnny-five"
 import socketio from "socket.io"
@@ -10,8 +8,12 @@ import {
 	InputSelectorState,
 } from "hifisparks-lib/types/controls"
 
+import { ServerSocket } from "hifisparks-lib/types/events"
+
 import { createInputSelector } from "./controls/input-selector"
 import { createMotorizedPotentiometer } from "./controls/motorized-potentiometer"
+import { createButton } from "./hardware/button"
+import { createRotaryEncoder } from "./hardware/rotary-encoder"
 
 const connectionHandler = ({
 	io,
@@ -19,43 +21,27 @@ const connectionHandler = ({
 }: {
 	io: socketio.Server,
 	controls: [IInputSelector, IMotorizedPotentiometer],
-}) => (socket: socketio.Socket) => {
+}) => (socket: ServerSocket) => {
+
+	// tslint:disable-next-line:no-console
+	console.log("A user connected.")
+	// @ts-ignore
+	// tslint:disable-next-line:no-console
+	socket.on("disconnect", () => { console.log("a user disconnected.") })
 
 	const [inputSelector, volumeControl] = controls
 
-	// tslint:disable-next-line:no-console
-	console.log("a user connected, instantiating connection handler")
-
 	const broadcastInputStates = (state: InputSelectorState) => {
-		// tslint:disable-next-line:no-console
-		console.log(`broadcasting input states: ${JSON.stringify(state)}`)
-		io.emit(Event.inputsChanged, { state })
+		io.emit("inputSelectorStateChanged", state)
 	}
 
+	inputSelector.events.on("stateChange", broadcastInputStates)
+
+	socket.on("setInput", inputSelector.set)
+	socket.on("volumeUp", volumeControl.up)
+	socket.on("volumeDown", volumeControl.down)
+
 	broadcastInputStates(inputSelector.getState())
-
-	socket.on(Event.setActiveInput, ({ id }: any) => {
-		// tslint:disable-next-line:no-console
-		console.log(`setting active input to ${id}`)
-		inputSelector.setActive(id)
-		broadcastInputStates(inputSelector.getState())
-	})
-
-	socket.on(Event.volumeUp, () => {
-		// tslint:disable-next-line:no-console
-		console.log(`turning volume up...`)
-		volumeControl.up()
-	})
-
-	socket.on(Event.volumeDown, () => {
-		// tslint:disable-next-line:no-console
-		console.log(`turning volume down...`)
-		volumeControl.down()
-	})
-
-	// tslint:disable-next-line:no-console
-	socket.on("disconnect", () => console.log("a user disconnected."))
-
 }
 
 const initApplication = ({ httpPort }: { httpPort: number }) => () => {
@@ -70,24 +56,18 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 			),
 	)
 
-	// tslint:disable-next-line:no-console
-	console.log("initializing input selector")
-
 	const inputSelector = createInputSelector({
 		type: "InputSelector",
 		id: "IS_MAIN",
 		label: "input selector",
 		inputs: [
-			{ id: "IS_MAIN__INP0", label: "TV", pinNr: 2 },
-			{ id: "IS_MAIN__INP1", label: "Bluetooth", pinNr: 3 },
-			{ id: "IS_MAIN__INP2", label: "Stream", pinNr: 4 },
-			{ id: "IS_MAIN__INP3", label: "AUX", pinNr: 5 },
+			{ id: "IS_MAIN__INP0", label: "TV", pinNr: 3 },
+			{ id: "IS_MAIN__INP1", label: "Bluetooth", pinNr: 4 },
+			{ id: "IS_MAIN__INP2", label: "Stream", pinNr: 5 },
+			{ id: "IS_MAIN__INP3", label: "AUX", pinNr: 6 },
 		],
 		active: "IS_MAIN__INP0",
 	})
-
-	// tslint:disable-next-line:no-console
-	console.log("initializing volume control")
 
 	const volumeControl = createMotorizedPotentiometer({
 		type: "MotorizedPotentiometer",
@@ -97,15 +77,27 @@ const initApplication = ({ httpPort }: { httpPort: number }) => () => {
 			type: "TB6612FNG",
 			pins: {
 				standby: 8,
-				dir: 10,
-				cdir: 9,
+				dir: 9,
+				cdir: 10,
 				pwm: 11,
 			},
 		},
 	})
 
+	const rotaryDial = createRotaryEncoder({
+		pins: {
+			a: { pinNr: 14, internalResistor: "pullUp" },
+			b: { pinNr: 15, internalResistor: "pullUp" },
+		},
+	})
+
+	rotaryDial.on("clockwiseClick", inputSelector.next)
+	rotaryDial.on("counterclockwiseClick", inputSelector.prev)
+
+	const rotaryDialButton = createButton({pinNr: 16, internalResistor: "pullUp", debounceMs: 100 })
 	// tslint:disable-next-line:no-console
-	console.log("initializing socket.io connection handler")
+	rotaryDialButton.on("pressed", () => { console.log("rotary dial pressed")})
+
 	const connectionHandlerInstance = connectionHandler({
 		io,
 		controls: [

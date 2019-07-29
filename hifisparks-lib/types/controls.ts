@@ -1,15 +1,7 @@
-import { MotorDriverConfig } from "./hardware"
+import EventEmitter from "events"
+import StrictEventEmitter from "strict-event-emitter-types"
 
-/**
- * NOTE:
- *
- * Components that need to report their state receive their initial state
- * when initializing.
- * When polled for their current state, they'll return an updated object
- * of the same type as the initial state.
- *
- * Components that don't need to report their state receive a config object.
- */
+import { MotorDriverConfig } from "./hardware"
 
 /**
  * Input selector
@@ -34,7 +26,15 @@ export interface IInputSelector {
 	id: string,
 	label: string,
 	getState: () => InputSelectorState,
-	setActive: (id: string) => void,
+	set: (id: string) => void,
+	prev: () => void,
+	next: () => void,
+	events: StrictEventEmitter<
+		EventEmitter,
+		{
+			stateChange: (newState: InputSelectorState) => void,
+		}
+	>
 }
 
 /**

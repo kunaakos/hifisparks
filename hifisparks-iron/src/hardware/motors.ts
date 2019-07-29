@@ -5,15 +5,15 @@ import {
 } from "hifisparks-lib/types/hardware"
 
 import {
-	createDigitalPin,
+	createDigitalOutputPin,
 	createPwmPin,
 } from "./pins"
 
 const createTb6612fngMotor = (driver: Tb6612fngMotorDriverConfig): IMotor => {
 
-	const standbyPin = createDigitalPin({ pinNr: driver.pins.standby })
-	const dirPin = createDigitalPin({ pinNr: driver.pins.dir })
-	const cdirPin = createDigitalPin({ pinNr: driver.pins.cdir })
+	const standbyPin = createDigitalOutputPin({ pinNr: driver.pins.standby })
+	const dirPin = createDigitalOutputPin({ pinNr: driver.pins.dir })
+	const cdirPin = createDigitalOutputPin({ pinNr: driver.pins.cdir })
 	const pwmPin = createPwmPin({ pinNr: driver.pins.pwm })
 
 	let motorIsOn: boolean = false
