@@ -1,4 +1,5 @@
 import cloneDeep from "lodash/cloneDeep"
+import throttle from "lodash/throttle"
 
 import { EventEmitter } from "events"
 
@@ -40,6 +41,8 @@ export const createInputSelector = (initialState: InputSelectorState): IInputSel
 		emitter.emit("stateChange", getState())
 	}
 
+	const throttledSet = throttle(set, 250, { leading: true, trailing: false })
+
 	const step = (val: number) => () => {
 		const currentInputIndex: number = state.inputs.findIndex(input => input.id === state.active)
 
@@ -49,11 +52,11 @@ export const createInputSelector = (initialState: InputSelectorState): IInputSel
 		const lastInputIndex = state.inputs.length - 1
 
 		if (nextInputIndex < 0) {
-			set(state.inputs[lastInputIndex].id)
+			throttledSet(state.inputs[lastInputIndex].id)
 		} else if (nextInputIndex > lastInputIndex) {
-			set(state.inputs[0].id)
+			throttledSet(state.inputs[0].id)
 		} else {
-			set(state.inputs[nextInputIndex].id)
+			throttledSet(state.inputs[nextInputIndex].id)
 		}
 	}
 
