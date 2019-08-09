@@ -1,25 +1,41 @@
 import React, { useEffect, useRef, useState } from "react"
-import styled from "styled-components"
-
-import { InputSelectorState } from "hifisparks-lib/types/controls"
+import { createGlobalStyle, ThemeProvider } from "styled-components"
 
 import socketIoClient from "socket.io-client"
 
+import { InputSelectorState } from "hifisparks-lib/types/controls"
 import { ClientSocket } from "hifisparks-lib/types/events"
 
-import { PushButton } from "hifisparks-lib/components/push-button"
-import { SimpleButton } from "hifisparks-lib/components/static-buttons"
-import { withHapticFeedback } from "hifisparks-lib/utils/misc"
+import { defaultTheme } from "hifisparks-lib/themes/"
 
-const ButtonsContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	max-width: 320px;
-	margin: auto;
-	margin-top: 10px;
-	margin-bottom: 10px;
+import {
+	MainContainer,
+	Paragraph,
+	ScrollContainer,
+	Title,
+} from "./elements"
+
+import { InputSelector } from "./input-selector"
+import { VolumeControl } from "./volume-control"
+
+const GlobalStyles = createGlobalStyle`
+  * {
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+	user-select: none;
+  }
+  body, html {
+	min-width: 320px;
+	background: ${({ theme }) =>
+		// @ts-ignore
+		theme.color.background
+	};
+    margin: 0;
+	@media only screen and (max-width: 600px) {
+		font-size: 14px;
+	}
+  }
 `
-
 export const App = () => {
 
 	const [inputSelectorState, setInputSelectorState]: [
@@ -27,72 +43,56 @@ export const App = () => {
 		(newState: InputSelectorState | void) => void
 	] = useState(null)
 
-	const socket: { current: ClientSocket | null } = useRef(null)
-
-	const dispatchSetActiveInput = withHapticFeedback(
-		[20, 20, 20],
-		(id: string) => socket.current && socket.current.emit("setInput", id),
-	)
-	const dispatchVolumeUp = () => socket.current && socket.current.emit("volumeUp")
-	const volumeDown = () => socket.current && socket.current.emit("volumeDown")
+	const setActiveInput = useRef((id: string): void => undefined)
+	const volumeUp = useRef(() => undefined)
+	const volumeDown = useRef(() => undefined)
 
 	const disconnectHandler = () => { setInputSelectorState(null) }
 
 	useEffect(() => {
+		// @ts-ignore - TODO: figure out what's up here
+		const socket: ClientSocket = socketIoClient("http://localhost:9999", { transports: ["websocket"] })
 
+		setActiveInput.current = (id: string) => { socket.emit("setInput", id) }
+		volumeUp.current = () => { socket.emit("volumeUp") }
+		volumeDown.current = () => { socket.emit("volumeDown") }
+
+		socket.on("inputSelectorStateChanged", setInputSelectorState)
 		// @ts-ignore
-		socket.current = socketIoClient("http://localhost:9999", { transports: ["websocket"] })
-		socket.current.on("inputSelectorStateChanged", setInputSelectorState)
+		socket.on("connect_error", (disconnectHandler))
 		// @ts-ignore
-		socket.current.on("connect_error", disconnectHandler)
+		socket.on("error", disconnectHandler)
 		// @ts-ignore
-		socket.current.on("error", disconnectHandler)
-		// @ts-ignore
-		socket.current.on("disconnected", disconnectHandler)
+		socket.on("disconnected", disconnectHandler)
 		// TODO: destroy socket when cleaning up
 	}, [])
 
-	return inputSelectorState
-		? <div>
-			<ButtonsContainer>
-			{
-				inputSelectorState.inputs.map(({id, label}: any) => {
-					const isSelected = inputSelectorState.active === id
-					return (
-						<SimpleButton
-							key={id}
-							onClick={() => !isSelected && dispatchSetActiveInput(id)}
-							active={isSelected}
-						>
-							{label}
-						</SimpleButton>
-					)
-				})
+	return <ThemeProvider theme={defaultTheme}>
+		<React.Fragment>
+			<GlobalStyles />
+			{inputSelectorState
+
+				? <MainContainer>
+					<Title>HIFI ✨</Title>
+					<ScrollContainer>
+						<InputSelector
+							inputs={inputSelectorState.inputs}
+							active={inputSelectorState.active}
+							dispatchSetActiveInput={setActiveInput.current}
+						/>
+						<VolumeControl
+							dispatchVolumeUp={volumeUp.current}
+							dispatchVolumeDown={volumeDown.current}
+						/>
+					</ScrollContainer>
+				</MainContainer>
+
+				: <MainContainer>
+					<Title>HIFI ✨</Title>
+					<Paragraph>...connecting to iron</Paragraph>
+				</MainContainer>
+
 			}
-			</ButtonsContainer>
-			<ButtonsContainer>
-
-				<PushButton
-					wrapper={SimpleButton}
-					onPushed={dispatchVolumeUp}
-					whilePushed={dispatchVolumeUp}
-					delay={90}
-					hapticFeedbackPattern={[30]}
-				>
-					Volume Up
-				</PushButton>
-
-				<PushButton
-					wrapper={SimpleButton}
-					onPushed={volumeDown}
-					whilePushed={volumeDown}
-					delay={90}
-					hapticFeedbackPattern={[30]}
-				>
-					Volume Down
-				</PushButton>
-
-			</ButtonsContainer>
-		</div>
-		: <div>not connected</div>
+		</React.Fragment>
+	</ThemeProvider>
 }

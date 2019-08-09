@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react"
 
 import { PushButtonProps } from "./"
 
-import { hapticFeedback  } from "hifisparks-lib/utils/misc"
-
 const onContextMenu = (event: React.SyntheticEvent) => {
 	event.preventDefault()
 	event.stopPropagation()
@@ -19,10 +17,10 @@ export const PushButton = (props: PushButtonProps) => {
 		onReleased: onReleasedCb,
 		whilePushed,
 		delay,
-		hapticFeedbackPattern,
 	} = props
 
 	const [intervalHandle, setIntervalHandle] = useState(0)
+	const [active, setActive] = useState(false)
 
 	const intervalClear = () => {
 		intervalHandle && clearInterval(intervalHandle)
@@ -40,13 +38,13 @@ export const PushButton = (props: PushButtonProps) => {
 
 	const onPressed = () => {
 		intervalSet()
-		hapticFeedbackPattern && hapticFeedback(hapticFeedbackPattern)
+		setActive(true)
 		onPushedCb && onPushedCb()
 	}
 
 	const onReleased = () => {
 		intervalClear()
-		hapticFeedbackPattern && hapticFeedback(hapticFeedbackPattern)
+		setActive(false)
 		onReleasedCb && onReleasedCb()
 	}
 
@@ -55,7 +53,7 @@ export const PushButton = (props: PushButtonProps) => {
 			/**
 			 * This control is active while it's calling whilePushed.
 			 */
-			active={Boolean(intervalHandle)}
+			className={active ? "active" : null}
 
 			onPointerDown={onPressed}
 
