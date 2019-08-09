@@ -8,7 +8,6 @@ export type PushButtonProps = {
 	onReleased?: () => void
 	whilePushed?: () => void,
 	delay: number,
-	hapticFeedbackPattern?: Array<number>,
 }
 
 export { PushButton } from "./push-button"

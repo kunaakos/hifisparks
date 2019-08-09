@@ -2,6 +2,7 @@
 	"include": [
 		"./components/*",
 		"./config/*",
+		"./themes/*",
 		"./types/*",
 		"./utils/*",
 	],

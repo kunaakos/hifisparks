@@ -32,7 +32,7 @@ const connectionHandler = ({
 	const [inputSelector, volumeControl] = controls
 
 	const broadcastInputStates = (state: InputSelectorState) => {
-		io.emit("inputSelectorStateChanged", state)
+		socket.emit("inputSelectorStateChanged", state)
 	}
 
 	inputSelector.events.on("stateChange", broadcastInputStates)
