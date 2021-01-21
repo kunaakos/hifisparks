@@ -19,7 +19,7 @@
     "hifisparks-lib": "0.0.0",
     "johnny-five": "^1.2.0",
     "lodash": "^4.17.15",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "strict-event-emitter-types": "^2.0.0"
   }
 }
